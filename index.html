@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[source: 1]<!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -21,9 +21,7 @@
             align-items: center;
         }
 
-        /* =========================================
-           0. الشريط العلوي للبرنامج (Top App Header)
-           ========================================= */
+        /* الشريط العلوي */
         .top-app-bar {
             width: 100%;
             max-width: 800px;
@@ -50,19 +48,16 @@
             font-size: 20px;
             color: #1a1a1a;
             font-weight: 700;
-            letter-spacing: 0.5px;
             direction: ltr;
         }
 
-        /* =========================================
-           1. حاوية المعاينة الذكية (Smart Responsive Scaling)
-           ========================================= */
+        /* حاوية المعاينة والطباعة */
         .a4-wrapper {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 20px;
         }
 
@@ -71,76 +66,65 @@
             min-width: 210mm;
             transform-origin: top center;
             flex-shrink: 0;
-            transition: transform 0.1s ease-out;
         }
 
-        /* الورقة بأبعاد A4 القياسية */
         .a4-page {
             width: 210mm;
-            height: 297mm;
-            min-height: 297mm;
-            max-height: 297mm;
+            min-height: 297mm; /* السماح بالتمدد للأسفل أو الانتقال لصفحة جديدة */
             background: white;
-            padding: 8mm 12mm 25mm 12mm;
+            padding: 10mm 15mm 25mm 15mm;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             position: relative;
-            background-clip: padding-box;
             box-sizing: border-box;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .page-content {
+            flex-grow: 1;
         }
 
         /* العلامة المائية */
         .watermark {
             position: absolute;
-            top: 50%;
+            top: 48%;
             left: 50%;
             transform: translate(-50%, -50%);
             opacity: 0.08;
             z-index: 0;
-            width: 380px;
+            width: 420px;
             pointer-events: none;
             text-align: center;
         }
 
-        header {
+        /* الهيدر */
+        .header-container {
+            width: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
+            align-items: flex-start;
+            margin-bottom: 6px;
         }
 
-        .company-name {
-            text-align: right;
-            color: #1a1a1a;
-        }
-
-        .company-name h2 {
-            margin: 0;
-            font-size: 17px;
-            font-weight: bold;
-        }
+        .logo-box { width: 50%; text-align: left; }
+        .company-name { width: 50%; text-align: right; color: #1a1a1a; }
+        .company-name h2 { margin: 0; font-size: 16px; font-weight: bold; line-height: 1.3; }
 
         .top-line {
-            border-top: 3px solid #802020;
-            margin-bottom: 8px;
+            border-top: 3.5px solid #802020;
+            margin-bottom: 10px;
+            width: 100%;
         }
 
-        .quotation-info {
-            text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .quotation-info h3 {
-            text-decoration: underline;
-            font-size: 14px;
-            margin: 0;
-        }
+        .quotation-info { text-align: center; margin-bottom: 10px; }
+        .quotation-info h3 { text-decoration: underline; font-size: 14px; margin: 0; font-weight: bold; }
 
         .details-grid {
             display: flex;
             justify-content: space-between;
             font-size: 11.5px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             line-height: 1.5;
             position: relative;
             z-index: 1;
@@ -149,26 +133,25 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 11.5px;
+            margin-top: 5px;
+            font-size: 11px;
             position: relative;
             z-index: 1;
         }
 
-        th, td {
-            border: 1.5px solid #000;
-            padding: 4px 5px;
-            text-align: center;
-            min-height: 18px;
-        }
-
+        th, td { border: 1.5px solid #000; padding: 5px 4px; text-align: center; }
         th { background-color: #e0e0e0; font-weight: bold; }
         
+        /* يمنع انقسام أسطر الجدول بشكل مشوه عند الانتقال لصفحة جديدة */
+        tr {
+            page-break-inside: avoid;
+        }
+
         .desc-cell {
-            text-align: right;
+            text-align: left;
             direction: ltr;
             font-family: 'Cairo', sans-serif;
-            width: 40%;
+            width: 42%;
             white-space: pre-wrap;
         }
 
@@ -176,44 +159,109 @@
 
         .terms-section {
             margin-top: 10px;
-            font-size: 11.5px;
-            line-height: 1.5;
+            font-size: 11px;
+            line-height: 1.4;
             position: relative;
             z-index: 1;
+            page-break-inside: avoid; /* منع تقطع الشروط بين الصفحات */
         }
 
-        .terms-section h4 {
-            margin: 4px 0;
+        .terms-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
 
-        .terms-section ul {
-            margin: 2px 0 6px 0;
-            padding-left: 20px;
-        }
+        .terms-left { width: 50%; }
+        .terms-left h4 { margin: 0 0 4px 0; font-weight: bold; font-size: 11.5px; }
+        .terms-left-list { font-weight: bold; line-height: 1.5; }
 
         .arabic-note {
-            float: right;
+            width: 45%;
             direction: rtl;
             text-align: right;
             font-family: 'Cairo', sans-serif;
-            font-weight: bold;
+        }
+
+        .arabic-note strong { display: block; margin-bottom: 2px; font-size: 11.5px; }
+
+        .terms-section h4 { margin: 4px 0 2px 0; font-weight: bold; font-size: 11.5px; }
+        .terms-section ul { margin: 2px 0 4px 0; padding-left: 20px; font-weight: 600; }
+
+        /* =========================================
+           تعديل التوقيع للتعامل مع الفائض وملازمة الصفحات
+           ========================================= */
+        .closing-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+            page-break-inside: avoid; /* ينزل كتلة واحدة لصفحة جديدة إذا لم تكفِ المساحة */
+        }
+
+        .closing-left {
+            width: 40%;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .signature-block {
+            width: 55%;
+            display: flex;
+            justify-content: flex-end;
         }
 
         .signature {
-            margin-top: 15px;
             text-align: center;
-            font-size: 11.5px;
-            float: right;
-            width: 280px;
+            font-size: 11px;
+            width: 100%;
+            max-width: 320px;
             position: relative;
-            z-index: 1;
+        }
+
+        .signature-text {
+            position: relative;
+            z-index: 2;
+            line-height: 1.35;
+            font-weight: 600;
+        }
+
+        .signature-text strong {
+            display: block;
+            white-space: nowrap;
+        }
+
+        #stamp-image { 
+            position: absolute; 
+            top: -20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 135px; 
+            opacity: 0.8; 
+            z-index: 1; 
+            display: none; 
+            pointer-events: none;
+        }
+
+        #signature-image { 
+            position: absolute; 
+            bottom: -30px; 
+            left: 20%; 
+            width: 220px; 
+            z-index: 3; 
+            display: none; 
+            pointer-events: none;
         }
 
         footer {
-            position: absolute;
-            bottom: 8mm;
-            left: 12mm;
-            right: 12mm;
+            margin-top: 15px;
+            position: relative;
+            width: 100%;
+            page-break-inside: avoid;
         }
 
         .footer-line { border-top: 3px solid #802020; margin-bottom: 4px; }
@@ -222,14 +270,12 @@
             display: flex;
             justify-content: space-between;
             direction: rtl;
-            font-size: 11px;
+            font-size: 10.5px;
             font-family: 'Cairo', sans-serif;
             font-weight: bold;
         }
 
-        /* =========================================
-           2. لوحات التحكم (متجاوبة 100%)
-           ========================================= */
+        /* عناصر التحكم */
         .controls {
             background: #fff;
             padding: 20px;
@@ -240,13 +286,7 @@
             margin-bottom: 20px;
         }
 
-        .controls label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #333;
-        }
+        .controls label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #333; }
 
         .controls input[type="text"], 
         .controls input[type="number"], 
@@ -276,11 +316,7 @@
             padding-bottom: 6px;
         }
 
-        .panel-header h3 {
-            margin: 0;
-            font-size: 16px;
-            color: #333;
-        }
+        .panel-header h3 { margin: 0; font-size: 16px; color: #333; }
 
         .btn-delete {
             background-color: #dc3545;
@@ -293,17 +329,8 @@
             font-weight: bold;
         }
 
-        #vert {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #verts {
-            width: 100%;
-            max-width: 800px;
-        }
+        #vert { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        #verts { width: 100%; max-width: 800px; }
 
         .switch-container {
             display: flex;
@@ -325,170 +352,165 @@
         .slider.round { border-radius: 34px; }
         .slider.round:before { border-radius: 50%; }
 
-        #stamp-image { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 120px; opacity: 0.85; z-index: 1; display: none; }
-        #signature-image { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); width: 130px; z-index: 3; display: none; }
-
-        /* =========================================
-           3. إعدادات الطباعة الصارمة (Strict 1 Page Print)
-           ========================================= */
+        /* إعدادات الطباعة متعددة الصفحات بشكل مريح */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 0; 
+                margin: 10mm 0mm; 
             }
             html, body {
-                height: 297mm !important;
-                max-height: 297mm !important;
+                width: 100% !important;
+                height: auto !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: white !important;
-                overflow: hidden !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .top-app-bar, .controls, #vert, #verts, .btn-delete { display: none !important; }
             .a4-wrapper { 
                 display: block !important; 
-                overflow: hidden !important; 
-                height: 297mm !important; 
-                max-height: 297mm !important;
+                overflow: visible !important; 
+                width: 100% !important; 
+                height: auto !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
             }
-            .a4-scaler { 
-                transform: none !important; 
-                width: 210mm !important; 
-                min-width: 210mm !important; 
-            }
+            .a4-scaler { transform: none !important; width: 100% !important; }
             .a4-page { 
-                width: 210mm !important; 
-                min-width: 210mm !important;
-                height: 297mm !important; 
-                max-height: 297mm !important;
-                padding: 8mm 12mm 20mm 12mm !important; 
+                width: 100% !important; 
+                min-height: auto !important;
+                padding: 5mm 15mm 10mm 15mm !important; 
                 box-shadow: none !important; 
-                page-break-after: avoid !important; 
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
-                margin: 0 auto !important;
-                overflow: hidden !important;
+                margin: 0 auto !important; 
+                overflow: visible !important; 
             }
-            footer { position: absolute; bottom: 8mm !important; left: 12mm !important; right: 12mm !important; }
-            * { page-break-inside: avoid !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- الشريط العلوي لتطبيق Generator PDF Quote -->
     <div class="top-app-bar">
         <img src="download.png" alt="PDF Logo">
         <h1>Generator PDF Quote</h1>
     </div>
 
-    <!-- حاوية المعاينة المباشرة (Live PDF Preview) -->
     <div class="a4-wrapper">
         <div class="a4-scaler">
             <div class="a4-page" id="printableArea">
-                <div class="watermark">
-                    <img src="Screenshot_2026-04-12_17-41-39.png" alt="" style="max-width: 100%;">
-                </div>
+                <div class="page-content">
+                    <div class="watermark">
+                        <img src="Screenshot_2026-04-12_17-41-39.png" alt="" style="max-width: 100%;">
+                    </div>
 
-                <header>
-                    <div class="logo-box">
-                        <div style="font-weight: bold; font-size: 28px; color: #1a428a;">
-                           <img src="Screenshot_2026-04-12_17-41-39.png" width="200" alt="Logo">
+                    <div class="header-container">
+                        <div class="logo-box">
+                            <img src="Screenshot_2026-04-12_17-41-39.png" width="190" alt="Logo">
+                        </div>
+                        <div class="company-name">
+                            <h2>Ram Engineering For Steel</h2>
+                            <h2>Structure &amp; General Supplies</h2>
                         </div>
                     </div>
-                    <div class="company-name">
-                        <h2>Ram Engineering For Steel</h2>
-                        <h2>Structure &amp; General Supplies</h2>
+
+                    <div class="top-line"></div>
+
+                    <div class="quotation-info">
+                        <h3 id="Quotatione">Quotation No: </h3>
                     </div>
-                </header>
-
-                <div class="top-line"></div>
-
-                <div class="quotation-info">
-                    <h3 id="Quotatione">Quotation No: </h3>
-                </div>
-                <div class="details-grid">
-                    <div class="details-left">
-                        <strong id="Client">Client Name: </strong> <br>
-                        <strong id="phone">Phone: </strong><br>
-                        <strong id="KindAttention">Kind Attention: </strong> <br>
-                        <strong id="inSubject">Subject: </strong> <br>
-                        <strong id="outDepartment">Department: </strong> 
+                    <div class="details-grid">
+                        <div class="details-left">
+                            <strong id="Client">Client Name: </strong> <br>
+                            <strong id="phone">Phone : </strong><br>
+                            <strong id="KindAttention">Kind Attention : </strong> <br>
+                            <strong id="inSubject">Subject : </strong> <br>
+                            <strong id="outDepartment">Department: </strong> 
+                        </div>
+                        <div class="details-right" style="text-align: right;">
+                            <strong id="date">Date: </strong><br>
+                            <strong id="ref">Ref: </strong> 
+                        </div>
                     </div>
-                    <div class="details-right" style="text-align: right;">
-                        <strong id="date">Date: </strong><br>
-                        <strong id="ref">Ref: </strong> 
-                    </div>
-                </div>
 
-                <p style="font-size: 11.5px; margin-bottom: 4px;">Referring to our visit in your company we are pleased to offer<br>as per the below terms &amp; conditions:.</p>
-              
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 5%;">s.n</th>
-                            <th style="width: 15%;">Item Code</th>
-                            <th style="width: 40%;">DESCRIPTION</th>
-                            <th style="width: 10%;">Unit</th>
-                            <th style="width: 5%;">Qty</th>
-                            <th style="width: 10%;">U/price</th>
-                            <th style="width: 15%;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="youssef">
-                        <!-- تُعرض الأصناف لحظياً -->
-                    </tbody>
-                    <tbody>
-                        <tr>
-                            <td colspan="6" style="text-align: center; font-weight: bold; background-color:#e0e0e0">Total</td>
-                            <td class="total-row-bg" id="finalTotal">0.00 ج.م</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="terms-section">
-                    <div class="arabic-note">
-                        ملحوظة<br>
-                        <u id="note"></u>
-                    </div>
-                    <h4 id="term">2 - Terms of Payment :</h4>
-                    <h4>3 - Delivery Schedule :</h4>
-                    ASAP By Max 10 Days From Delivery
-                    <h4>4 - Validity</h4>
-                    <ul>
-                        <li>2 Days form offer date.</li>
-                        <li>The Above All Prices are Excluding VAT</li>
-                    </ul>
-                </div>
-
-                <p style="font-size: 11.5px; clear: both; margin: 4px 0;">Thanking you &amp; looking forward to your order.</p>
-                <p style="font-size: 11.5px; margin: 2px 0;">Yours truly</p>
+                    <p style="font-size: 11.5px; margin-bottom: 6px;">Referring to our visit in your company we are pleased to offer<br>as per the below terms &amp; conditions:.</p>
                 
-                <div class="signature">
-                    <img src="WhatsApp_Image_2026-04-14_at_2.53.09_PM-removebg-preview.png" id="stamp-image" alt="Stamp">
-                    <div class="signature-text">
-                        <strong>For RAM Enginnering Company for steel Strucure and Genral Suppling</strong><br><br>
-                        <strong>Marketing Engineer</strong><br>
-                        Ramadan Arafa
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">s.n</th>
+                                <th style="width: 15%;">Item Code</th>
+                                <th style="width: 42%;">DESCRIPTION</th>
+                                <th style="width: 8%;">Unit</th>
+                                <th style="width: 6%;">Qty</th>
+                                <th style="width: 11%;">U/price</th>
+                                <th style="width: 13%;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="youssef"></tbody>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: bold; background-color:#ffffff">Total</td>
+                                <td class="total-row-bg" id="finalTotal">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="terms-section">
+                        <div class="terms-flex">
+                            <div class="terms-left">
+                                <h4>Terms of Payment:</h4>
+                                <div class="terms-left-list" id="termList"></div>
+                            </div>
+                            <div class="arabic-note">
+                                <strong>ملحوظة</strong>
+                                <u><span id="note"></span></u>
+                            </div>
+                        </div>
+
+                        <h4>3 - Delivery Schedule :</h4>
+                        <p style="margin: 2px 0 4px 0; font-weight: 600;">ASAP By Max 10 Days From Delivery</p>
+                        
+                        <h4>4 - Validity</h4>
+                        <ul>
+                            <li>2 Days form offer date.</li>
+                            <li>The Above All Prices are Excluding VAT</li>
+                        </ul>
                     </div>
-                    <img src="c4bc837f-fe44-4e5d-9a75-ca8b35ebef5b-removebg-preview.png" id="signature-image" alt="Signature">
+
+                    <!-- الخاتمة والتوقيع -->
+                    <div class="closing-section">
+                        <div class="closing-left">
+                            <p style="margin: 0 0 4px 0;">Thanking you &amp; looking forward to your order.</p>
+                            <p style="margin: 0;">Yours truly</p>
+                        </div>
+                        
+                        <div class="signature-block">
+                            <div class="signature">
+                                <img src="WhatsApp_Image_2026-04-14_at_2.53.09_PM-removebg-preview.png" id="stamp-image" alt="Stamp">
+                                <div class="signature-text">
+                                    <strong>For RAM Enginnering Company for steel Strucure</strong>
+                                    <strong>and Genral Suppling</strong><br>
+                                    <strong style="margin-top: 3px;">Marketing Engineer</strong>
+                                    Ramadan Arafa
+                                </div>
+                                <img src="c4bc837f-fe44-4e5d-9a75-ca8b35ebef5b-removebg-preview.png" id="signature-image" alt="Signature">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <footer>
                     <div class="footer-line"></div>
                     <div class="footer-info">
-                        <span>المصنع : اكتوبر المنطقة الصناعية – قطعة رقم 136 امام الشركة الشرقية للدخان</span>
-                        <span>ت / 01112362670</span>
+                        <span>المصنع : اكتوبر المنطقة الصناعية – قطعة رقم 136 امام الشركة الشرقية للدخان / 01112362670</span>
+                        <span style="direction: ltr;">Email: ramsteel21@hotmail.com</span>
                     </div>
-                    <span style="font-size: 11px;">Email: ramsteel21@hotmail.com</span>
                 </footer>
             </div>
         </div>
     </div>
 
-    <!-- لوحة البيانات العامة للفاتورة -->
     <div class="controls">
         <div class="panel-header">
             <h3>البيانات العامة للفاتورة</h3>
@@ -497,7 +519,7 @@
         <div class="form-grid">
             <div>
                 <label>رقم عرض السعر (Quotation No):</label>
-                <input type="text" id="inQuotationNo" placeholder="مثال: QT-2026-01">
+                <input type="text" id="inQuotationNo" placeholder="مثال: 42883 / UIC الصيانة">
             </div>
             <div>
                 <label>التاريخ (Date): 📅</label>
@@ -531,8 +553,8 @@
 
         <label style="margin-top: 10px;">الشروط (Terms of Payment):</label>
         <div class="form-grid">
-            <input type="text" id="term1" placeholder="شرط 1">
-            <input type="text" id="term2" placeholder="شرط 2">
+            <input type="text" id="term1" placeholder="مثال: 50% Down Payment">
+            <input type="text" id="term2" placeholder="مثال: 50% at FINISH">
             <input type="text" id="term3" placeholder="شرط 3">
             <input type="text" id="term4" placeholder="شرط 4">
         </div>
@@ -555,9 +577,7 @@
         </div>
     </div>
 
-    <!-- حاوية الأصناف -->
     <div id="vert">
-        <!-- لوحة الصنف 1 -->
         <div class="controls item-control">
             <div class="panel-header">
                 <h3 class="panel-title">لوحة الصنف (1)</h3>
@@ -597,7 +617,6 @@
     </div>
 
 <script>
-    const currencyText = " ج.م";
     let defaultRefHash = "";
     let defaultQuotNo = "";
 
@@ -609,14 +628,12 @@
         if (!wrapper || !scaler || !page) return;
 
         scaler.style.transform = 'none';
-        
         const wrapperWidth = wrapper.clientWidth;
         const pageWidth = scaler.offsetWidth;
 
         if (wrapperWidth < pageWidth) {
             const scale = (wrapperWidth - 10) / pageWidth;
             scaler.style.transform = `scale(${scale})`;
-            
             const realHeight = page.offsetHeight;
             wrapper.style.height = `${realHeight * scale}px`;
         } else {
@@ -639,48 +656,49 @@
         if (dateRaw) {
             const parts = dateRaw.split("-");
             if (parts.length === 3) {
-                dateValue = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                dateValue = `${parts[2]}-${parts[1]}-${parts[0]}`;
             } else {
                 dateValue = dateRaw;
             }
         } else {
-            dateValue = `${day}/${month}/${year}`;
+            dateValue = `${day}-${month}-${year}`;
         }
         document.getElementById("date").innerHTML = "Date: " + dateValue;
 
         let refValue = getVal("inRefInput");
         if (!refValue) {
             if (!defaultRefHash) {
-                defaultRefHash = Math.random().toString(36).substring(2, 6).toUpperCase();
+                defaultRefHash = Math.floor(10000 + Math.random() * 90000);
             }
-            refValue = `RAM-${year}${month}${day}-${defaultRefHash}`;
+            refValue = `#${defaultRefHash}`;
         }
         document.getElementById("ref").innerHTML = "Ref: " + refValue;
 
         let quotNo = getVal("inQuotationNo");
         if (!quotNo) {
             if (!defaultQuotNo) {
-                defaultQuotNo = Math.floor(100 + Math.random() * 900);
+                defaultQuotNo = Math.floor(10000 + Math.random() * 90000);
             }
-            quotNo = `QT-${year}${month}-${defaultQuotNo}`;
+            quotNo = `${defaultQuotNo} / UIC الصيانة`;
         }
         document.getElementById("Quotatione").innerHTML = "Quotation No: " + quotNo;
 
         document.getElementById("Client").innerHTML = "Client Name: " + getVal("inClientName");
-        document.getElementById("phone").innerHTML = "Phone: " + getVal("inPhone");
-        document.getElementById("KindAttention").innerHTML = "Kind Attention: " + getVal("inKindAttention");
-        document.getElementById("inSubject").innerHTML = "Subject: " + getVal("inSubject");
+        document.getElementById("phone").innerHTML = "Phone : " + getVal("inPhone");
+        document.getElementById("KindAttention").innerHTML = "Kind Attention : " + getVal("inKindAttention");
+        document.getElementById("inSubject").innerHTML = "Subject : " + getVal("inSubject");
         document.getElementById("outDepartment").innerHTML = "Department: " + getVal("inDepartment");
 
         const terms = ["term1", "term2", "term3", "term4"]
             .map(id => getVal(id))
             .filter(t => t !== "");
 
-        let termHtml = "2 - Terms of Payment :";
+        const termContainer = document.getElementById("termList");
         if (terms.length > 0) {
-            termHtml += "<br>" + terms.join("<br>");
+            termContainer.innerHTML = terms.map(t => `<div>${t}</div>`).join("");
+        } else {
+            termContainer.innerHTML = "<div>50% Down Payment</div><div>50% at FINISH</div>";
         }
-        document.getElementById("term").innerHTML = termHtml;
 
         const isStamp = document.getElementById("checkbox")?.checked || false;
         const isSig = document.getElementById("checkbox2")?.checked || false;
@@ -709,16 +727,12 @@
 
             const isFilled = (code !== "") || (desc !== "") || (qty > 0) || (price > 0) || (note !== "");
 
-            if (!isFilled) {
-                return;
-            }
+            if (!isFilled) return;
 
             const rowTotal = qty * price;
             grandTotal += rowTotal;
 
-            if (note) {
-                notesList.push(note);
-            }
+            if (note) notesList.push(note);
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -727,25 +741,22 @@
                 <td class="desc-cell">${desc}</td>
                 <td>${unit}</td>
                 <td>${qty}</td>
-                <td>${price.toFixed(2)}${currencyText}</td>
-                <td>${rowTotal.toFixed(2)}${currencyText}</td>
+                <td>${price.toFixed(2)}</td>
+                <td>${rowTotal.toFixed(2)}</td>
             `;
             tbody.appendChild(tr);
         });
 
-        document.getElementById("finalTotal").innerHTML = grandTotal.toFixed(2) + currencyText;
-        document.getElementById("note").innerHTML = notesList.join("<br>");
+        document.getElementById("finalTotal").innerHTML = grandTotal.toFixed(2);
+        document.getElementById("note").innerHTML = notesList.length > 0 ? notesList.join("<br>") : "لزوم اعمال التركيبات مصنع الورنيش الجديد";
 
         updateA4Scale();
     }
 
     document.addEventListener('input', renderPreview);
     document.addEventListener('change', renderPreview);
-
     window.addEventListener('resize', updateA4Scale);
-    window.addEventListener('load', () => {
-        renderPreview();
-    });
+    window.addEventListener('load', renderPreview);
 
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => updateA4Scale());
@@ -757,9 +768,7 @@
         const itemPanels = document.querySelectorAll('.item-control');
         itemPanels.forEach((panel, index) => {
             const title = panel.querySelector('.panel-title');
-            if (title) {
-                title.textContent = `لوحة الصنف (${index + 1})`;
-            }
+            if (title) title.textContent = `لوحة الصنف (${index + 1})`;
         });
     }
 
