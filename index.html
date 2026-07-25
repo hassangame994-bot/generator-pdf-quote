@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation - Ram Engineering</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        /* =========================================
+           1. التنسيقات الأساسية (Desktop)
+           ========================================= */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 8mm 15mm 30mm 15mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        /* العلامة المائية */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            z-index: 0;
+            width: 400px;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0px;
+        }
+
+        .company-name {
+            text-align: right;
+            color: #1a1a1a;
+        }
+
+        .company-name h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .top-line {
+            border-top: 3px solid #802020;
+            margin-bottom: 10px;
+        }
+
+        .quotation-info {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .quotation-info h3 {
+            text-decoration: underline;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .details-grid {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        th, td {
+            border: 1.5px solid #000;
+            padding: 6px;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        th { background-color: #e0e0e0; font-weight: bold; }
+        
+        .desc-cell {
+            text-align: right;
+            direction: ltr;
+            font-family: 'Cairo', sans-serif;
+            width: 45%;
+            white-space: pre-wrap;
+        }
+
+        .total-row-bg { background-color: #ffff00; font-weight: bold; }
+
+        .terms-section {
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
+        }
+
+        .arabic-note {
+            float: right;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+        }
+
+        .signature {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            float: right;
+            width: 300px;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10mm;
+        }
+
+        .footer-line { border-top: 3px solid #802020; margin-bottom: 5px; }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            direction: rtl;
+            font-size: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+        }
+
+        /* لوحات التحكم */
+        .controls {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            width: 600px;
+            max-width: 95%;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .controls input, .controls textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 6px;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        #vert {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #verts {
+            width: 600px;
+            max-width: 95%;
+        }
+
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .a4-page { width: 100%; min-height: auto; padding: 10px; padding-bottom: 20px; }
+            header { flex-direction: column; text-align: center; }
+            .company-name { text-align: center; margin-top: 10px; }
+            .details-grid { flex-direction: column; }
+            .details-left, .details-right { text-align: left; margin-bottom: 15px; }
+            .details-right { text-align: left !important; }
+            footer { position: static; margin-top: 40px; width: 100%; }
+            .footer-info { flex-direction: column; text-align: center; gap: 5px; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+            .arabic-note { float: none; text-align: left; direction: ltr; margin-bottom: 10px;}
+            .signature { float: none; width: 100%; margin-top: 20px;}
+        }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { margin: 0; padding: 0; }
+            .a4-page { width: 210mm; height: 297mm; padding: 10mm 10mm 20mm 10mm; box-shadow: none; page-break-after: avoid; overflow: hidden; }
+            .controls, #vert, #verts, .btn-delete { display: none !important; }
+            * { page-break-inside: avoid; }
+        }
+        
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-bottom: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; display: block; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #802020; }
+        input:focus + .slider { box-shadow: 0 0 1px #802020; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        #stamp-image { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 130px; opacity: 0.85; z-index: 1; display: none; }
+        #signature-image { position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 150px; z-index: 3; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- المعاينة A4 -->
+    <div class="a4-page" id="printableArea">
+        <div class="watermark">
+            <img src="Screenshot_2026-04-12_17-41-39.png" alt="" style="max-width: 100%;">
+        </div>
+
+        <header>
+            <div class="logo-box">
+                <div style="font-weight: bold; font-size: 28px; color: #1a428a;">
+                   <img src="Screenshot_2026-04-12_17-41-39.png" width="250" alt="Logo">
+                </div>
+            </div>
+            <div class="company-name">
+                <h2>Ram Engineering For Steel</h2>
+                <h2>Structure &amp; General Supplies</h2>
+            </div>
+        </header>
+
+        <div class="top-line"></div>
+
+        <div class="quotation-info">
+            <h3 id="Quotatione">Quotation No: </h3>
+        </div>
+        <div class="details-grid">
+            <div class="details-left">
+                <strong id="Client">Client Name: </strong> <br>
+                <strong id="phone">Phone: </strong><br>
+                <strong id="KindAttention">Kind Attention: </strong> <br>
+                <strong id="inSubject">Subject: </strong> <br>
+                <strong id="outDepartment">Department: </strong> 
+            </div>
+            <div class="details-right" style="text-align: right;">
+                <strong id="date">Date: </strong><br>
+                <strong id="ref">Ref: </strong> 
+            </div>
+        </div>
+
+        <p style="font-size: 12px; margin-bottom: 5px;">Referring to our visit in your company we are pleased to offer<br>as per the below terms &amp; conditions:.</p>
+      
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">s.n</th>
+                    <th style="width: 15%;">Item Code</th>
+                    <th style="width: 40%;">DESCRIPTION</th>
+                    <th style="width: 10%;">Unit</th>
+                    <th style="width: 5%;">Qty</th>
+                    <th style="width: 10%;">U/price</th>
+                    <th style="width: 15%;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="youssef">
+                <!-- الأسطر المتبقية تُولّد ديناميكياً -->
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colspan="6" style="text-align: center; font-weight: bold; background-color:#e0e0e0">Total</td>
+                    <td class="total-row-bg" id="finalTotal">0.00 ج.م</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="terms-section">
+            <div class="arabic-note">
+                ملحوظة<br>
+                <u id="note"></u>
+            </div>
+            <h4 id="term">2 - Terms of Payment :</h4>
+            <h4>3 - Delivery Schedule :</h4>
+            ASAP By Max 10 Days From Delivery
+            <h4>4 - Validity</h4>
+            <ul>
+                <li>2 Days form offer date.</li>
+                <li>The Above All Prices are Excluding VAT</li>
+            </ul>
+        </div>
+
+        <p style="font-size: 12px; clear: both;">Thanking you &amp; looking forward to your order.</p>
+        <p style="font-size: 12px;">Yours truly</p><br><br>
+        <div class="signature">
+            <img src="WhatsApp_Image_2026-04-14_at_2.53.09_PM-removebg-preview.png" id="stamp-image" alt="Stamp">
+            <div class="signature-text">
+                <strong>For RAM Enginnering Company for steel Strucure and Genral Suppling</strong><br><br><br>
+                <strong>Marketing Engineer</strong><br>
+                Ramadan Arafa
+            </div>
+            <img src="c4bc837f-fe44-4e5d-9a75-ca8b35ebef5b-removebg-preview.png" id="signature-image" alt="Signature">
+        </div>
+
+        <footer>
+            <div class="footer-line"></div>
+            <div class="footer-info">
+                <span>المصنع : اكتوبر المنطقة الصناعية – قطعة رقم 136 امام الشركة الشرقية للدخان</span>
+                <span>ت / 01112362670</span><br><br>
+            </div>
+            <span>Email: ramsteel21@hotmail.com</span><br>
+        </footer>
+    </div>
+
+    <!-- لوحة البيانات العامة للفاتورة -->
+    <div class="controls">
+        <div class="panel-header">
+            <h3>البيانات العامة للفاتورة</h3>
+        </div>
+        
+        <label>رقم عرض السعر (Quotation No) - اختياري:</label>
+        <input type="text" id="inQuotationNo" placeholder="مثال: QT-2026-01 (أتركه فارغاً ليتولد تلقائياً)">
+
+        <label>التاريخ (Date) - اختياري:</label>
+        <input type="text" id="inDateInput" placeholder="مثال: 26/07/2026 (أتركه فارغاً لاستخدام تاريخ اليوم تلقائياً)">
+
+        <label>المرجع (Ref) - اختياري:</label>
+        <input type="text" id="inRefInput" placeholder="أتركه فارغاً لإنشاء كود فريد تلقائياً">
+        
+        <label>Subject:</label>
+        <input type="text" id="inSubject" placeholder="الموضوع">
+        
+        <label>Kind Attention:</label>
+        <input type="text" id="inKindAttention" placeholder="العناية بـ">
+        
+        <label>Client Name:</label>
+        <input type="text" id="inClientName" placeholder="اسم العميل">
+        
+        <label>Phone:</label>
+        <input type="text" id="inPhone" placeholder="رقم الهاتف">
+
+        <label>القسم (Department):</label>
+        <input type="text" id="inDepartment" placeholder="اسم القسم">
+
+        <label>الشروط (Terms of Payment):</label>
+        <input type="text" id="term1" placeholder="شرط 1">
+        <input type="text" id="term2" placeholder="شرط 2">
+        <input type="text" id="term3" placeholder="شرط 3">
+        <input type="text" id="term4" placeholder="شرط 4">
+        
+        <label style="display: block; margin-bottom: 5px;">هل تريد الختم؟</label>
+        <label class="switch">
+            <input type="checkbox" id="checkbox">
+            <span class="slider round"></span>
+        </label>
+        
+        <label style="display: block; margin-bottom: 5px;">هل تريد التوقيع؟</label>
+        <label class="switch">
+            <input type="checkbox" id="checkbox2">
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <!-- حاوية الأصناف -->
+    <div id="vert">
+        <!-- لوحة الصنف 1 -->
+        <div class="controls item-control">
+            <div class="panel-header">
+                <h3 class="panel-title">لوحة الصنف (1)</h3>
+                <button type="button" class="btn-delete" onclick="deletePanel(this)">حذف اللوحة 🗑️</button>
+            </div>
+            
+            <label>كود الصنف (Item Code) - اختياري:</label>
+            <input type="text" class="input-code" placeholder="كود الصنف (اختياري)">
+
+            <label>الوصف (Description):</label>
+            <textarea class="input-desc" rows="3" placeholder="اكتب الوصف هنا..."></textarea>
+            
+            <label>الوحدة (Unit):</label>
+            <input type="text" class="input-unit" placeholder="الوحدة (مثل: Each, Set)">
+            
+            <label>الكمية (Qty):</label>
+            <input type="number" class="input-qty" placeholder="0">
+            
+            <label>سعر الوحدة (U/price):</label>
+            <input type="number" step="any" class="input-price" placeholder="0.0">
+            
+            <label>الملحوظة (اختياري):</label>
+            <input type="text" class="input-note" placeholder="اكتب ملحوظة إضافية لهذا الصنف...">
+        </div>
+    </div>
+    
+    <div id="verts">
+        <button type="button" onclick="add()" style="width:100%; padding:10px; background: #28a745; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 4px;">+ إضافة صنف جديد</button>
+        <button type="button" onclick="web()" style="width:100%; padding:10px; background: #802020; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 4px;">إصدار الفاتورة وطباعتها (Create)</button>
+    </div>
+
+<script>
+    const currencyText = " ج.م"; 
+
+    function renumberPanels() {
+        const itemPanels = document.querySelectorAll('.item-control');
+        itemPanels.forEach((panel, index) => {
+            const title = panel.querySelector('.panel-title');
+            if (title) {
+                title.textContent = `لوحة الصنف (${index + 1})`;
+            }
+        });
+    }
+
+    function deletePanel(btn) {
+        const panel = btn.closest('.item-control');
+        if (panel) {
+            panel.remove();
+            renumberPanels();
+        }
+    }
+
+    function add() {
+        const vert = document.getElementById("vert");
+        const count = document.querySelectorAll('.item-control').length + 1;
+
+        const html = `
+        <div class="controls item-control">
+            <div class="panel-header">
+                <h3 class="panel-title">لوحة الصنف (${count})</h3>
+                <button type="button" class="btn-delete" onclick="deletePanel(this)">حذف اللوحة 🗑️</button>
+            </div>
+            
+            <label>كود الصنف (Item Code) - اختياري:</label>
+            <input type="text" class="input-code" placeholder="كود الصنف (اختياري)">
+
+            <label>الوصف (Description):</label>
+            <textarea class="input-desc" rows="3" placeholder="اكتب الوصف هنا..."></textarea>
+            
+            <label>الوحدة (Unit):</label>
+            <input type="text" class="input-unit" placeholder="الوحدة (مثل: Each, Set)">
+            
+            <label>الكمية (Qty):</label>
+            <input type="number" class="input-qty" placeholder="0">
+            
+            <label>سعر الوحدة (U/price):</label>
+            <input type="number" step="any" class="input-price" placeholder="0.0">
+            
+            <label>الملحوظة (اختياري):</label>
+            <input type="text" class="input-note" placeholder="اكتب ملحوظة إضافية لهذا الصنف...">
+        </div>
+        `;
+        
+        vert.insertAdjacentHTML('beforeend', html);
+    }
+
+    /**
+     * تجميع البيانات ومعالجتها للطباعة
+     */
+    function web() {
+        const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+
+        // 1. معالجة التاريخ (يدوي أو تلقائي)
+        let dateValue = getVal("inDateInput");
+        if (!dateValue) {
+            dateValue = `${day}/${month}/${year}`;
+        }
+        document.getElementById("date").innerHTML = "Date: " + dateValue;
+
+        // 2. معالجة المرجع Ref (يدوي أو تلقائي)
+        let refValue = getVal("inRefInput");
+        if (!refValue) {
+            const randomHash = Math.random().toString(36).substring(2, 6).toUpperCase();
+            refValue = `RAM-${year}${month}${day}-${randomHash}`;
+        }
+        document.getElementById("ref").innerHTML = "Ref: " + refValue;
+
+        // 3. كتابة رقم العرض (يدوي أو تلقائي)
+        let quotNo = getVal("inQuotationNo");
+        if (!quotNo) {
+            quotNo = `QT-${year}${month}-${Math.floor(100 + Math.random() * 900)}`;
+        }
+        document.getElementById("Quotatione").innerHTML = "Quotation No: " + quotNo;
+
+        // 4. البيانات العامة
+        document.getElementById("Client").innerHTML = "Client Name: " + getVal("inClientName");
+        document.getElementById("phone").innerHTML = "Phone: " + getVal("inPhone");
+        document.getElementById("KindAttention").innerHTML = "Kind Attention: " + getVal("inKindAttention");
+        document.getElementById("inSubject").innerHTML = "Subject: " + getVal("inSubject");
+        document.getElementById("outDepartment").innerHTML = "Department: " + getVal("inDepartment");
+
+        // 5. الشروط المالية
+        const terms = ["term1", "term2", "term3", "term4"]
+            .map(id => getVal(id))
+            .filter(t => t !== "");
+
+        let termHtml = "2 - Terms of Payment :";
+        if (terms.length > 0) {
+            termHtml += "<br>" + terms.join("<br>");
+        }
+        document.getElementById("term").innerHTML = termHtml;
+
+        // 6. الختم والتوقيع
+        const isStamp = document.getElementById("checkbox")?.checked || false;
+        const isSig = document.getElementById("checkbox2")?.checked || false;
+        document.getElementById("stamp-image").style.display = isStamp ? "block" : "none";
+        document.getElementById("signature-image").style.display = isSig ? "block" : "none";
+
+        // 7. قراءة الأصناف وتصفية اللوحات الفارغة
+        const tbody = document.getElementById("youssef");
+        tbody.innerHTML = "";
+
+        let grandTotal = 0;
+        let notesList = [];
+        let printedIndex = 1;
+
+        const panels = document.querySelectorAll('.item-control');
+
+        panels.forEach(panel => {
+            const code = panel.querySelector('.input-code')?.value?.trim() || "";
+            const desc = panel.querySelector('.input-desc')?.value?.trim() || "";
+            const unit = panel.querySelector('.input-unit')?.value?.trim() || "";
+            const qtyVal = panel.querySelector('.input-qty')?.value;
+            const priceVal = panel.querySelector('.input-price')?.value;
+            const note = panel.querySelector('.input-note')?.value?.trim() || "";
+
+            const qty = parseFloat(qtyVal) || 0;
+            const price = parseFloat(priceVal) || 0;
+
+            const isFilled = (code !== "") || (desc !== "") || (qty > 0) || (price > 0) || (note !== "");
+
+            if (!isFilled) {
+                return;
+            }
+
+            const rowTotal = qty * price;
+            grandTotal += rowTotal;
+
+            if (note) {
+                notesList.push(note);
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${printedIndex++}</td>
+                <td>${code}</td>
+                <td class="desc-cell">${desc}</td>
+                <td>${unit}</td>
+                <td>${qty}</td>
+                <td>${price.toFixed(2)}${currencyText}</td>
+                <td>${rowTotal.toFixed(2)}${currencyText}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // 8. المجموع الكلي والملاحظات
+        document.getElementById("finalTotal").innerHTML = grandTotal.toFixed(2) + currencyText;
+        document.getElementById("note").innerHTML = notesList.join("<br>");
+
+        // 9. تشغيل نافذة الطباعة
+        window.print();
+    }
+</script>
+</body>
+</html>
