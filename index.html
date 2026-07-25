@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quotation - Ram Engineering</title>
+    <title>Generator PDF Quote - Ram Engineering</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 
@@ -19,6 +19,39 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        /* =========================================
+           0. الشريط العلوي للبرنامج (Top App Header)
+           ========================================= */
+        .top-app-bar {
+            width: 100%;
+            max-width: 800px;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-bottom: 3px solid #802020;
+        }
+
+        .top-app-bar img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .top-app-bar h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #1a1a1a;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            direction: ltr;
         }
 
         /* =========================================
@@ -205,6 +238,7 @@
 
         .controls input[type="text"], 
         .controls input[type="number"], 
+        .controls input[type="date"], 
         .controls textarea {
             width: 100%;
             padding: 10px;
@@ -283,11 +317,12 @@
         #signature-image { position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 150px; z-index: 3; display: none; }
 
         /* =========================================
-           3. إعدادات الطباعة (تُعيد الورقة لطبيعتها 100%)
+           3. إعدادات الطباعة
            ========================================= */
         @media print {
             @page { size: A4; margin: 0; }
             body { margin: 0; padding: 0; background: white; }
+            .top-app-bar, .controls, #vert, #verts, .btn-delete { display: none !important; }
             .a4-wrapper { 
                 display: block !important; 
                 overflow: visible !important; 
@@ -309,13 +344,18 @@
                 page-break-after: avoid; 
                 margin: 0 auto;
             }
-            .controls, #vert, #verts, .btn-delete { display: none !important; }
             footer { position: absolute; bottom: 10mm; left: 10mm; right: 10mm; }
             * { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
+
+    <!-- الشريط العلوي لتطبيق Generator PDF Quote -->
+    <div class="top-app-bar">
+        <img src="download.png" alt="PDF Logo">
+        <h1>Generator PDF Quote</h1>
+    </div>
 
     <!-- حاوية المعاينة المباشرة (Live PDF Preview) -->
     <div class="a4-wrapper">
@@ -432,8 +472,8 @@
                 <input type="text" id="inQuotationNo" placeholder="مثال: QT-2026-01">
             </div>
             <div>
-                <label>التاريخ (Date):</label>
-                <input type="text" id="inDateInput" placeholder="مثال: 26/07/2026">
+                <label>التاريخ (Date): 📅</label>
+                <input type="date" id="inDateInput">
             </div>
             <div>
                 <label>المرجع (Ref):</label>
@@ -533,9 +573,6 @@
     let defaultRefHash = "";
     let defaultQuotNo = "";
 
-    // =========================================
-    // 1. محرك التحجيم الذكي (Auto-Scaling)
-    // =========================================
     function updateA4Scale() {
         const wrapper = document.querySelector('.a4-wrapper');
         const scaler = document.querySelector('.a4-scaler');
@@ -560,9 +597,6 @@
         }
     }
 
-    // =========================================
-    // 2. محرك التحديث المباشر (Live Sync Engine)
-    // =========================================
     function renderPreview() {
         const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
 
@@ -571,14 +605,21 @@
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
 
-        // التاريخ
-        let dateValue = getVal("inDateInput");
-        if (!dateValue) {
+        let dateRaw = getVal("inDateInput");
+        let dateValue = "";
+        
+        if (dateRaw) {
+            const parts = dateRaw.split("-");
+            if (parts.length === 3) {
+                dateValue = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+                dateValue = dateRaw;
+            }
+        } else {
             dateValue = `${day}/${month}/${year}`;
         }
         document.getElementById("date").innerHTML = "Date: " + dateValue;
 
-        // المرجع
         let refValue = getVal("inRefInput");
         if (!refValue) {
             if (!defaultRefHash) {
@@ -588,7 +629,6 @@
         }
         document.getElementById("ref").innerHTML = "Ref: " + refValue;
 
-        // رقم عرض السعر
         let quotNo = getVal("inQuotationNo");
         if (!quotNo) {
             if (!defaultQuotNo) {
@@ -598,14 +638,12 @@
         }
         document.getElementById("Quotatione").innerHTML = "Quotation No: " + quotNo;
 
-        // البيانات الرئيسية
         document.getElementById("Client").innerHTML = "Client Name: " + getVal("inClientName");
         document.getElementById("phone").innerHTML = "Phone: " + getVal("inPhone");
         document.getElementById("KindAttention").innerHTML = "Kind Attention: " + getVal("inKindAttention");
         document.getElementById("inSubject").innerHTML = "Subject: " + getVal("inSubject");
         document.getElementById("outDepartment").innerHTML = "Department: " + getVal("inDepartment");
 
-        // الشروط
         const terms = ["term1", "term2", "term3", "term4"]
             .map(id => getVal(id))
             .filter(t => t !== "");
@@ -616,13 +654,11 @@
         }
         document.getElementById("term").innerHTML = termHtml;
 
-        // الختم والتوقيع
         const isStamp = document.getElementById("checkbox")?.checked || false;
         const isSig = document.getElementById("checkbox2")?.checked || false;
         document.getElementById("stamp-image").style.display = isStamp ? "block" : "none";
         document.getElementById("signature-image").style.display = isSig ? "block" : "none";
 
-        // الأصناف والجدول
         const tbody = document.getElementById("youssef");
         tbody.innerHTML = "";
 
@@ -672,13 +708,9 @@
         document.getElementById("finalTotal").innerHTML = grandTotal.toFixed(2) + currencyText;
         document.getElementById("note").innerHTML = notesList.join("<br>");
 
-        // إعادة ضبط مقاس الحاوية المصغرة فوراً
         updateA4Scale();
     }
 
-    // =========================================
-    // 3. الاستماع المباشر لكل التغييرات (Live Event Listeners)
-    // =========================================
     document.addEventListener('input', renderPreview);
     document.addEventListener('change', renderPreview);
 
@@ -693,9 +725,6 @@
         if (pageEl) ro.observe(pageEl);
     }
 
-    // =========================================
-    // 4. إدارة اللوحات (إضافة وحذف)
-    // =========================================
     function renumberPanels() {
         const itemPanels = document.querySelectorAll('.item-control');
         itemPanels.forEach((panel, index) => {
