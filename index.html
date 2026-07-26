@@ -916,29 +916,73 @@
     }
 
     function downloadPDF() {
+        var scaler = document.querySelector('.a4-scaler');
+        var wrapper = document.querySelector('.a4-wrapper');
+        var prevTransform = scaler ? scaler.style.transform : '';
+        var prevWrapperHeight = wrapper ? wrapper.style.height : '';
+        var prevWrapperOverflow = wrapper ? wrapper.style.overflow : '';
+
+        function restoreScale() {
+            if (scaler) scaler.style.transform = prevTransform;
+            if (wrapper) {
+                wrapper.style.height = prevWrapperHeight;
+                wrapper.style.overflow = prevWrapperOverflow;
+            }
+        }
+
         try {
             var element = document.getElementById('printableArea');
-            var opt = {
-                margin: [5, 0, 5, 0],
-                filename: 'Quotation_RAM.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
 
             if (typeof html2pdf === 'undefined') {
                 alert('مكتبة html2pdf لم يتم تحميلها. تأكد من السماح لدومين cdnjs.cloudflare.com من إعدادات App Creator، أو من وجود اتصال إنترنت.');
                 return;
             }
 
-            // مهم جدًا: استخدمنا هنا Blob (عن طريق .save() مباشرة) وليس
-            // window.open() مع data URI. الفرق: data URI طويل بيتبعت
-            // كـ Intent خارجي لأندرويد وممكن يتعدى الحد الأقصى المسموح
-            // به (~1MB) فيسبب Crash كامل للتطبيق (زي اللي حصل بالظبط).
-            // Blob بيفضل جوه ذاكرة الصفحة، وأمن تمامًا من الناحية دي.
-            html2pdf().set(opt).from(element).save();
+            // ================================================================
+            // السبب الحقيقي وراء "الصفحة البيضاء تمامًا": مكتبة html2canvas
+            // (اللي html2pdf بيستخدمها) مش بتقدر تصوّر صح أي عنصر أب عليه
+            // CSS transform: scale() - وده بالظبط اللي بيحصل على الموبايل
+            // في .a4-scaler عشان الصفحة تتظبط في عرض الشاشة الصغيرة.
+            // الحل: نلغي التصغير تمامًا لحظة التصوير بس (فالعنصر يرجع
+            // لحجمه الطبيعي الكامل)، نصوّر، وبعدين نرجّع التصغير تاني.
+            // ================================================================
+            if (scaler) scaler.style.transform = 'none';
+            if (wrapper) {
+                wrapper.style.height = 'auto';
+                wrapper.style.overflow = 'visible';
+            }
+
+            var pxWidth = element.scrollWidth;
+            var pxHeight = element.scrollHeight;
+
+            var opt = {
+                margin: [5, 0, 5, 0],
+                filename: 'Quotation_RAM.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    windowWidth: pxWidth,
+                    windowHeight: pxHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // مهم: استخدمنا Blob (عن طريق .save() مباشرة) وليس
+            // window.open() مع data URI الطويل، لأن الـ data URI الطويل
+            // بيتبعت كـ Intent خارجي لأندرويد وممكن يتعدى الحد الأقصى
+            // المسموح به فيسبب Crash كامل للتطبيق.
+            html2pdf().set(opt).from(element).save().then(function () {
+                restoreScale();
+            }).catch(function (err) {
+                restoreScale();
+                alert('فشل إنشاء PDF: ' + (err && err.message ? err.message : err));
+            });
 
         } catch (err) {
+            restoreScale();
             alert('خطأ غير متوقع أثناء إنشاء PDF: ' + (err && err.message ? err.message : err));
         }
     }
