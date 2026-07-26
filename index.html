@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator PDF Quote - Ram Engineering</title>
-    <!-- مكتبة تحويل HTML إلى PDF -->
+    <!-- مكتبة تحويل HTML إلى PDF مباشرة لمنع خروج البرامج وتوقف التليفون -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
@@ -190,7 +190,7 @@
         .terms-section h4 { margin: 4px 0 2px 0; font-weight: bold; font-size: 11.5px; }
         .terms-section ul { margin: 2px 0 4px 0; padding-left: 20px; font-weight: 600; }
 
-        /* منطقة التوقيع والختم */
+        /* منطقة التوقيع والختم المنسقة لتطابق النموذج */
         .closing-section {
             display: flex;
             justify-content: space-between;
@@ -611,8 +611,8 @@
     
     <div id="verts">
         <button type="button" onclick="add()" style="width:100%; padding:12px; background: #28a745; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">+ إضافة صنف جديد</button>
-        <button type="button" id="btn-download" onclick="downloadPDF()" style="width:100%; padding:12px; background: #007bff; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">تحميل PDF مباشرة (للتليفون) 📥</button>
-        <button type="button" onclick="window.print()" style="width:100%; padding:12px; background: #802020; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">طباعة الفاتورة 🖨️</button>
+        <button type="button" onclick="downloadPDF()" style="width:100%; padding:12px; background: #007bff; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">تحميل PDF مباشرة (للتليفون) 📥</button>
+        <button type="button" onclick="smartPrint()" style="width:100%; padding:12px; background: #802020; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">طباعة الفاتورة 🖨️</button>
     </div>
 
 <script>
@@ -822,38 +822,41 @@
         renderPreview();
     }
 
-    /* دالة استخراج الـ PDF المعالجة لحل مشكلة الإغلاق المفاجئ (Crash) على الموبايل */
+    /* دالة طباعة ذكية: تكتشف إذا كان الموقع مفتوح داخل تطبيق (WebView) وليس متصفح حقيقي.
+       السبب في مشكلة "زرار الطباعة مش بيطبع": Android WebView (المستخدم في تطبيقات مثل App Creator24)
+       لا يدعم window.print() أصلاً، والدالة تفشل بصمت بدون أي رسالة خطأ.
+       الحل: لو اكتشفنا إننا داخل WebView، نستخدم downloadPDF() (المكتبة html2pdf.js) اللي بتعمل
+       الـ PDF بجافاسكريبت بحت وبتنزل الملف مباشرة بدل الاعتماد على طباعة النظام. */
+    function isInsideWebViewApp() {
+        const ua = navigator.userAgent || "";
+        // علامة WebView المعتادة على أندرويد (Chrome داخل تطبيق يضيف "; wv" في الـ User-Agent)
+        if (/; ?wv\)/i.test(ua)) return true;
+        // بعض تطبيقات App Creator24 / WebView wrappers تحقن كائن Android أو AppCreator في الصفحة
+        if (typeof window.Android !== "undefined") return true;
+        if (typeof window.AppCreator24 !== "undefined") return true;
+        return false;
+    }
+
+    function smartPrint() {
+        if (isInsideWebViewApp()) {
+            // بدل الطباعة الفاشلة، ننزل PDF مباشرة (بيفتح تلقائيًا اختيار الطباعة من داخل عارض الـ PDF بالتليفون)
+            downloadPDF();
+        } else {
+            window.print();
+        }
+    }
+
+    /* دالة تنزيل الـ PDF المباشر للتليفون */
     function downloadPDF() {
         const element = document.getElementById('printableArea');
-        const btn = document.getElementById('btn-download');
-
-        if (btn) btn.innerText = "جاري استخراج ملف الـ PDF... ⏳";
-
-        // إعدادات خفيفة جداً تضمن أداء مستقر داخل الـ WebView
         const opt = {
             margin:       [5, 0, 5, 0],
             filename:     'Quotation_RAM.pdf',
-            image:        { type: 'jpeg', quality: 0.88 },
-            html2canvas:  { 
-                scale: 1.2, // تقليل دقة الرسم لمنع استهلاك الذاكرة وحماية التطبيق من الإغلاق
-                useCORS: true,
-                allowTaint: true,
-                logging: false
-            },
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-
-        try {
-            html2pdf().set(opt).from(element).save().then(() => {
-                if (btn) btn.innerText = "تحميل PDF مباشرة (للتليفون) 📥";
-            }).catch(err => {
-                alert("حدث خطأ أثناء تنزيل PDF: " + err.message);
-                if (btn) btn.innerText = "تحميل PDF مباشرة (للتليفون) 📥";
-            });
-        } catch (error) {
-            alert("حدث خطأ في النظام: " + error.message);
-            if (btn) btn.innerText = "تحميل PDF مباشرة (للتليفون) 📥";
-        }
+        html2pdf().set(opt).from(element).save();
     }
 </script>
 </body>
