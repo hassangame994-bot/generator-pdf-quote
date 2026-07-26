@@ -1,24 +1,32 @@
-[source: 1]<!DOCTYPE html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator PDF Quote - Ram Engineering</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- html2pdf.js for APK & WebView PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
         * {
             box-sizing: border-box;
         }
 
         body {
             font-family: 'Cairo', Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #f4f6f8;
             margin: 0;
             padding: 15px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: #333;
         }
 
         /* الشريط العلوي */
@@ -26,7 +34,7 @@
             width: 100%;
             max-width: 800px;
             background: #ffffff;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -34,7 +42,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            border-bottom: 3px solid #802020;
+            border-bottom: 4px solid #802020;
         }
 
         .top-app-bar img {
@@ -66,19 +74,21 @@
             min-width: 210mm;
             transform-origin: top center;
             flex-shrink: 0;
+            transition: transform 0.2s ease;
         }
 
         .a4-page {
             width: 210mm;
-            min-height: 297mm; /* السماح بالتمدد للأسفل أو الانتقال لصفحة جديدة */
+            min-height: 297mm;
             background: white;
-            padding: 10mm 15mm 25mm 15mm;
+            padding: 10mm 15mm 15mm 15mm;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             position: relative;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            direction: ltr; /* English template layout */
         }
 
         .page-content {
@@ -96,6 +106,11 @@
             width: 420px;
             pointer-events: none;
             text-align: center;
+        }
+
+        .watermark img {
+            max-width: 100%;
+            height: auto;
         }
 
         /* الهيدر */
@@ -142,7 +157,6 @@
         th, td { border: 1.5px solid #000; padding: 5px 4px; text-align: center; }
         th { background-color: #e0e0e0; font-weight: bold; }
         
-        /* يمنع انقسام أسطر الجدول بشكل مشوه عند الانتقال لصفحة جديدة */
         tr {
             page-break-inside: avoid;
         }
@@ -163,7 +177,7 @@
             line-height: 1.4;
             position: relative;
             z-index: 1;
-            page-break-inside: avoid; /* منع تقطع الشروط بين الصفحات */
+            page-break-inside: avoid;
         }
 
         .terms-flex {
@@ -173,7 +187,7 @@
             margin-bottom: 8px;
         }
 
-        .terms-left { width: 50%; }
+        .terms-left { width: 50%; text-align: left; }
         .terms-left h4 { margin: 0 0 4px 0; font-weight: bold; font-size: 11.5px; }
         .terms-left-list { font-weight: bold; line-height: 1.5; }
 
@@ -186,12 +200,10 @@
 
         .arabic-note strong { display: block; margin-bottom: 2px; font-size: 11.5px; }
 
-        .terms-section h4 { margin: 4px 0 2px 0; font-weight: bold; font-size: 11.5px; }
-        .terms-section ul { margin: 2px 0 4px 0; padding-left: 20px; font-weight: 600; }
+        .terms-section h4 { margin: 4px 0 2px 0; font-weight: bold; font-size: 11.5px; text-align: left; }
+        .terms-section ul { margin: 2px 0 4px 0; padding-left: 20px; font-weight: 600; text-align: left; }
 
-        /* =========================================
-           تعديل التوقيع للتعامل مع الفائض وملازمة الصفحات
-           ========================================= */
+        /* التوقيع */
         .closing-section {
             display: flex;
             justify-content: space-between;
@@ -199,7 +211,7 @@
             margin-top: 15px;
             position: relative;
             z-index: 1;
-            page-break-inside: avoid; /* ينزل كتلة واحدة لصفحة جديدة إذا لم تكفِ المساحة */
+            page-break-inside: avoid;
         }
 
         .closing-left {
@@ -207,6 +219,7 @@
             font-size: 11px;
             line-height: 1.4;
             margin-bottom: 15px;
+            text-align: left;
         }
 
         .signature-block {
@@ -241,7 +254,7 @@
             left: 50%; 
             transform: translateX(-50%);
             width: 135px; 
-            opacity: 0.8; 
+            opacity: 0.85; 
             z-index: 1; 
             display: none; 
             pointer-events: none;
@@ -275,15 +288,16 @@
             font-weight: bold;
         }
 
-        /* عناصر التحكم */
+        /* عناصر التحكم - لوحة الإدخال */
         .controls {
             background: #fff;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 800px;
             margin-bottom: 20px;
+            direction: rtl;
         }
 
         .controls label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #333; }
@@ -330,7 +344,7 @@
         }
 
         #vert { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        #verts { width: 100%; max-width: 800px; }
+        #verts { width: 100%; max-width: 800px; direction: rtl; }
 
         .switch-container {
             display: flex;
@@ -352,11 +366,71 @@
         .slider.round { border-radius: 34px; }
         .slider.round:before { border-radius: 50%; }
 
-        /* إعدادات الطباعة متعددة الصفحات بشكل مريح */
+        /* أزرار الإجراءات */
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-action:active {
+            transform: scale(0.99);
+        }
+
+        .btn-add { background: #28a745; color: white; }
+        .btn-add:hover { background: #218838; }
+
+        .btn-pdf { background: #802020; color: white; }
+        .btn-pdf:hover { background: #601818; }
+
+        .btn-print { background: #0056b3; color: white; }
+        .btn-print:hover { background: #004085; }
+
+        /* حالة التحميل Loading Overlay */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #802020;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* إعدادات الطباعة للـ Browser Print */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 10mm 0mm; 
+                margin: 0; 
             }
             html, body {
                 width: 100% !important;
@@ -368,7 +442,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .top-app-bar, .controls, #vert, #verts, .btn-delete { display: none !important; }
+            .top-app-bar, .controls, #vert, #verts, .btn-delete, #loading-overlay { display: none !important; }
             .a4-wrapper { 
                 display: block !important; 
                 overflow: visible !important; 
@@ -380,8 +454,8 @@
             .a4-scaler { transform: none !important; width: 100% !important; }
             .a4-page { 
                 width: 100% !important; 
-                min-height: auto !important;
-                padding: 5mm 15mm 10mm 15mm !important; 
+                min-height: 297mm !important;
+                padding: 10mm 15mm 15mm 15mm !important; 
                 box-shadow: none !important; 
                 margin: 0 auto !important; 
                 overflow: visible !important; 
@@ -391,8 +465,15 @@
 </head>
 <body>
 
+    <!-- شاشة التحميل عند إنشاء PDF -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 16px; font-weight: bold;">جاري تجهيز وتحميل ملف PDF...</div>
+        <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">يرجى الانتظار لحظات</div>
+    </div>
+
     <div class="top-app-bar">
-        <img src="download.png" alt="PDF Logo">
+        <img src="download.jpg" alt="PDF Logo" onerror="this.src='download.png'">
         <h1>Generator PDF Quote</h1>
     </div>
 
@@ -401,12 +482,12 @@
             <div class="a4-page" id="printableArea">
                 <div class="page-content">
                     <div class="watermark">
-                        <img src="Screenshot_2026-04-12_17-41-39.png" alt="" style="max-width: 100%;">
+                        <img src="Screenshot_2026-04-12_17-41-39.png" alt="Watermark Logo" onerror="this.style.display='none'">
                     </div>
 
                     <div class="header-container">
                         <div class="logo-box">
-                            <img src="Screenshot_2026-04-12_17-41-39.png" width="190" alt="Logo">
+                            <img src="Screenshot_2026-04-12_17-41-39.png" width="190" alt="Logo" onerror="this.alt='RAM Engineering'">
                         </div>
                         <div class="company-name">
                             <h2>Ram Engineering For Steel</h2>
@@ -487,14 +568,14 @@
                         
                         <div class="signature-block">
                             <div class="signature">
-                                <img src="WhatsApp_Image_2026-04-14_at_2.53.09_PM-removebg-preview.png" id="stamp-image" alt="Stamp">
+                                <img src="WhatsApp_Image_2026-04-14_at_2.53.09_PM-removebg-preview.png" id="stamp-image" alt="Stamp" onerror="this.style.display='none'">
                                 <div class="signature-text">
                                     <strong>For RAM Enginnering Company for steel Strucure</strong>
                                     <strong>and Genral Suppling</strong><br>
                                     <strong style="margin-top: 3px;">Marketing Engineer</strong>
                                     Ramadan Arafa
                                 </div>
-                                <img src="c4bc837f-fe44-4e5d-9a75-ca8b35ebef5b-removebg-preview.png" id="signature-image" alt="Signature">
+                                <img src="c4bc837f-fe44-4e5d-9a75-ca8b35ebef5b-removebg-preview.png" id="signature-image" alt="Signature" onerror="this.style.display='none'">
                             </div>
                         </div>
                     </div>
@@ -511,6 +592,7 @@
         </div>
     </div>
 
+    <!-- لوحة التحكم بالبيانات -->
     <div class="controls">
         <div class="panel-header">
             <h3>البيانات العامة للفاتورة</h3>
@@ -612,8 +694,13 @@
     </div>
     
     <div id="verts">
-        <button type="button" onclick="add()" style="width:100%; padding:12px; background: #28a745; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">+ إضافة صنف جديد</button>
-        <button type="button" onclick="window.print()" style="width:100%; padding:12px; background: #802020; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">طباعة الفاتورة 🖨️</button>
+        <button type="button" class="btn-action btn-add" onclick="add()">+ إضافة صنف جديد</button>
+        
+        <!-- زر إنشاء PDF مخصص للتطبيق (24AppCreator & WebView) -->
+        <button type="button" class="btn-action btn-pdf" onclick="exportToPDF()">📄 تحميل / طباعة الفاتورة PDF (خاص بالتطبيق والموبايل)</button>
+        
+        <!-- زر الطباعة المباشرة للمتصفح -->
+        <button type="button" class="btn-action btn-print" onclick="window.print()">🖨️ طباعة مباشرة (للمتصفح على الكمبيوتر)</button>
     </div>
 
 <script>
@@ -702,8 +789,12 @@
 
         const isStamp = document.getElementById("checkbox")?.checked || false;
         const isSig = document.getElementById("checkbox2")?.checked || false;
-        document.getElementById("stamp-image").style.display = isStamp ? "block" : "none";
-        document.getElementById("signature-image").style.display = isSig ? "block" : "none";
+        
+        const stampImg = document.getElementById("stamp-image");
+        const sigImg = document.getElementById("signature-image");
+        
+        if(stampImg) stampImg.style.display = isStamp ? "block" : "none";
+        if(sigImg) sigImg.style.display = isSig ? "block" : "none";
 
         const tbody = document.getElementById("youssef");
         tbody.innerHTML = "";
@@ -751,6 +842,47 @@
         document.getElementById("note").innerHTML = notesList.length > 0 ? notesList.join("<br>") : "لزوم اعمال التركيبات مصنع الورنيش الجديد";
 
         updateA4Scale();
+    }
+
+    /* دالة تصدير وتحميل PDF خاصة بتطبيقات 24AppCreator و Android WebView */
+    function exportToPDF() {
+        const loading = document.getElementById("loading-overlay");
+        if(loading) loading.style.display = "flex";
+
+        const element = document.getElementById('printableArea');
+        const scaler = document.querySelector('.a4-scaler');
+        
+        // إعادة التحجيم المؤقت لاتساع A4 الطبيعي بدقة عالية
+        if (scaler) scaler.style.transform = 'none';
+
+        const quotNoText = document.getElementById("Quotatione").innerText.replace("Quotation No: ", "").trim() || "Quote";
+        const sanitizedFilename = `Quotation_${quotNoText.replace(/[/\\\\?%*:|"<>]/g, '_')}.pdf`;
+
+        const opt = {
+            margin:       [0, 0, 0, 0],
+            filename:     sanitizedFilename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // تنفيذ التصدير لـ PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            if(loading) loading.style.display = "none";
+            updateA4Scale();
+        }).catch(err => {
+            console.error("PDF Export error: ", err);
+            if(loading) loading.style.display = "none";
+            updateA4Scale();
+            // في حالة حدوث أي استثناء جرب الطباعة العادية
+            window.print();
+        });
     }
 
     document.addEventListener('input', renderPreview);
