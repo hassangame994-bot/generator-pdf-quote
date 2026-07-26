@@ -825,8 +825,10 @@
     /* دالة طباعة ذكية: تكتشف إذا كان الموقع مفتوح داخل تطبيق (WebView) وليس متصفح حقيقي.
        السبب في مشكلة "زرار الطباعة مش بيطبع": Android WebView (المستخدم في تطبيقات مثل App Creator24)
        لا يدعم window.print() أصلاً، والدالة تفشل بصمت بدون أي رسالة خطأ.
-       الحل: لو اكتشفنا إننا داخل WebView، نستخدم downloadPDF() (المكتبة html2pdf.js) اللي بتعمل
-       الـ PDF بجافاسكريبت بحت وبتنزل الملف مباشرة بدل الاعتماد على طباعة النظام. */
+       ملحوظة: تحميل ملف PDF فعلي جوه WebView غالبًا بيخرج المستخدم للمتصفح/مدير التحميلات، لأن
+       الـ WebView مفيهوش نظام تحميل ملفات مدمج (DownloadListener) والتطبيقات زي App Creator24 مش
+       بتوفره افتراضيًا. عشان كده الحل هنا لما نكون جوه تطبيق: نعرض "معاينة طباعة" (Print Preview)
+       داخل نفس الصفحة زي ما بيحصل بالظبط في المتصفح، من غير أي تحميل أو خروج من التطبيق. */
     function isInsideWebViewApp() {
         const ua = navigator.userAgent || "";
         // علامة WebView المعتادة على أندرويد (Chrome داخل تطبيق يضيف "; wv" في الـ User-Agent)
@@ -839,11 +841,66 @@
 
     function smartPrint() {
         if (isInsideWebViewApp()) {
-            // بدل الطباعة الفاشلة، ننزل PDF مباشرة (بيفتح تلقائيًا اختيار الطباعة من داخل عارض الـ PDF بالتليفون)
-            downloadPDF();
+            showPrintPreview();
         } else {
             window.print();
         }
+    }
+
+    /* تعرض معاينة الطباعة كامل الشاشة داخل نفس التطبيق (بدون تحميل وبدون الخروج من التطبيق) */
+    function showPrintPreview() {
+        const source = document.getElementById('printableArea');
+        if (!source) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'printPreviewOverlay';
+        overlay.style.cssText = `
+            position: fixed; inset: 0; background: #444;
+            z-index: 9999; overflow-y: auto; padding: 15px 0 40px 0;
+        `;
+
+        const closeBar = document.createElement('div');
+        closeBar.style.cssText = `
+            position: sticky; top: 0; width: 100%; display: flex;
+            justify-content: center; gap: 10px; padding: 10px; z-index: 2;
+        `;
+        closeBar.innerHTML = `
+            <button type="button" id="downloadFromPreviewBtn" style="padding:10px 24px; background:#007bff; color:#fff; border:none; border-radius:6px; font-weight:bold; font-family:'Cairo', sans-serif; cursor:pointer;">تحميل PDF 📥</button>
+            <button type="button" id="closePreviewBtn" style="padding:10px 24px; background:#802020; color:#fff; border:none; border-radius:6px; font-weight:bold; font-family:'Cairo', sans-serif; cursor:pointer;">إغلاق المعاينة ✕</button>
+        `;
+
+        const clone = source.cloneNode(true);
+        clone.style.margin = '0 auto';
+        clone.style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
+        clone.style.transformOrigin = 'top center';
+
+        const scaleWrap = document.createElement('div');
+        scaleWrap.style.width = '100%';
+        scaleWrap.appendChild(clone);
+
+        overlay.appendChild(closeBar);
+        overlay.appendChild(scaleWrap);
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+
+        // تصغير الصفحة لعرض الشاشة (مقاس A4 = 210mm ~ 794px عند 96dpi)
+        requestAnimationFrame(() => {
+            const pageWidthPx = clone.offsetWidth;
+            const availableWidth = overlay.clientWidth - 10;
+            if (pageWidthPx > availableWidth) {
+                const scale = availableWidth / pageWidthPx;
+                clone.style.transform = `scale(${scale})`;
+                scaleWrap.style.height = `${clone.offsetHeight * scale}px`;
+            }
+        });
+
+        document.getElementById('closePreviewBtn').addEventListener('click', () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+        document.getElementById('downloadFromPreviewBtn').addEventListener('click', () => {
+            downloadPDF();
+        });
     }
 
     /* دالة تنزيل الـ PDF المباشر للتليفون */
