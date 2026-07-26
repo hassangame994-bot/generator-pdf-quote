@@ -645,8 +645,8 @@
     <div id="verts">
         <button type="button" onclick="addPanel()" style="width:100%; padding:12px; background: #28a745; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">+ إضافة صنف جديد</button>
         <button type="button" onclick="downloadPDF()" style="width:100%; padding:12px; background: #007bff; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">تحميل PDF مباشرة (للتليفون)</button>
-        <button type="button" onclick="smartPrint()" style="width:100%; padding:12px; background: #7f7f7f; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">طباعة الفاتورة</button>
-        <button type="button" onclick="testClick()" style="width:100%; padding:12px; background: red; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">اختبار: هل الأزرار شغالة؟</button>
+        <button type="button" onclick="smartPrint()" style="width:100%; padding:12px; background: #802020; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">طباعة الفاتورة</button>
+        <button type="button" onclick="testClick()" style="width:100%; padding:12px; background: #6c757d; color:white; border:none; cursor:pointer; font-weight:bold; margin-bottom: 10px; border-radius: 6px; font-family:'Cairo', sans-serif;">اختبار: هل الأزرار شغالة؟</button>
     </div>
 
 <script>
@@ -907,12 +907,12 @@
         return false;
     }
 
+    // ملاحظة: الطباعة الحقيقية (window.print) شبه مستحيلة جوه WebView
+    // بتاع تطبيقات App Creator لأنها بتحتاج دعم Android Print Framework
+    // من كود التطبيق نفسه (مش من الصفحة). فبدل ما زرار الطباعة "ميعملش حاجة"
+    // خليناه يعمل نفس حاجة التحميل، وده أفضل نتيجة ممكنة.
     function smartPrint() {
-        if (isInsideWebViewApp()) {
-            downloadPDF();
-        } else {
-            window.print();
-        }
+        downloadPDF();
     }
 
     function downloadPDF() {
@@ -931,17 +931,13 @@
                 return;
             }
 
-            html2pdf().set(opt).from(element).outputPdf('datauristring').then(function (pdfAsString) {
-                var win = window.open();
-                if (win) {
-                    win.location.href = pdfAsString;
-                } else {
-                    alert('لم يستطع المتصفح فتح نافذة جديدة. سيتم محاولة التحميل المباشر.');
-                    html2pdf().set(opt).from(element).save();
-                }
-            }).catch(function (err) {
-                alert('فشل إنشاء PDF: ' + (err && err.message ? err.message : err));
-            });
+            // مهم جدًا: استخدمنا هنا Blob (عن طريق .save() مباشرة) وليس
+            // window.open() مع data URI. الفرق: data URI طويل بيتبعت
+            // كـ Intent خارجي لأندرويد وممكن يتعدى الحد الأقصى المسموح
+            // به (~1MB) فيسبب Crash كامل للتطبيق (زي اللي حصل بالظبط).
+            // Blob بيفضل جوه ذاكرة الصفحة، وأمن تمامًا من الناحية دي.
+            html2pdf().set(opt).from(element).save();
+
         } catch (err) {
             alert('خطأ غير متوقع أثناء إنشاء PDF: ' + (err && err.message ? err.message : err));
         }
